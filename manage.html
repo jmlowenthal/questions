@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<head>
+	<title>Exam questions - add</title>
+
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+	<link rel="stylesheet" href="css/katex.min.css"></link>
+	<link rel="stylesheet" href="css/style.css">
+	
+	<script src="js/showdown.min.js"></script>
+	<script src="js/katex.min.js"></script>
+	<script src="js/auto-render.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+	
+	<div class="container">
+		<form id="header">
+			<div class="row">                
+				<div class="col s12 m8">
+					<label>Exam month</label>
+					<select name="month" class="browser-default">
+						<script>
+						var months = [
+							'Jan', 'January',
+							'Feb', 'February',
+							'Mar', 'March',
+							'Apr', 'April',
+							'May', 'May',
+							'Jun', 'June',
+							'July', 'July',
+							'Aug', 'August',
+							'Sept', 'September',
+							'Oct', 'October',
+							'Nov', 'November',
+							'Dec', 'December'
+						];
+						
+						// Iterate array of enum values
+						for (var i = 0; i < months.length; i += 2){
+							document.write("<option value='" + months[i] + "'>" + months[i+1] + "</option>");
+						}
+						</script>
+					</select>
+				</div>
+				
+				<div class="input-field col s12 m4">
+					<label>Exam year</label>
+					<input name="year" value="<?=$year?>"
+						type="number" min="1901" max="2155"
+						class="validate">
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col s12 m2">
+					<label>Exam board</label>
+					<select name="board" class="browser-default">
+						<script>
+						var boards = [
+							'AQA', 'CIE', 'CCEA', 'Edexcel', 'ICAAE', 'OCR', 'WJEC'
+						];
+						
+						// Iterate array of enum values
+						for (var i = 0; i < boards.length; ++i){
+							document.write("<option value='" + boards[i] + "'>" + boards[i] + "</option>");
+						}
+						</script>
+					</select>
+				</div>
+				
+				<div class="col s12 m4">
+					<label>Subject</label>
+					<select name="subject" class="browser-default">
+						<script>
+						var subjects = [
+							'Biology', 'Business', 'Chemistry', 'Computer Science',
+							'Economics', 'English', 'French', 'Geography', 'German',
+							'Government and Politics', 'History', 'ICT', 'Mathematics',
+							'Philosophy', 'Physical Education', 'Physics', 'Psychology',
+							'Religious Studies', 'Science'
+						];
+						
+						// Iterate array of enum values
+						for (var i = 0; i < subjects.length; ++i){
+							document.write("<option value='" + subjects[i] + "'>" + subjects[i] + "</option>");
+						}
+						</script>
+					</select>
+				</div>
+				
+				<div class="input-field col s12 m6">
+					<label>Exam unit</label>
+					<input type="text" name="unit">
+				</div>
+			</div>
+		</form>
+		
+		<div id="questions"></div>
+	</div>
+	
+	<script>
+		function submitall(){
+			$("#questions").children().each(function(){
+				$.post("post-question.php",
+					$("#header").serialize() + "&" + $(this).serialize(),
+					function(data){
+						if (data) alert(data);
+						else {
+							window.location.href = "find.php";
+						}
+					}
+				);
+			});
+		};
+		
+		function arraysEqual(a, b){
+			if (a === b) return true;
+			if (a == null || b == null) return false;
+			if (a.length != b.length) return false;
+			
+			for (var i in a){
+				if (a[i] !== b[i]) return false;
+			}
+			
+			return true;
+		}
+			
+		var qnum = 0;
+		function addnew(){
+			var content = [
+				"<form class='row'>",
+				"	<div class='col s12 m2'>",
+				"		<label>Question number</label>",
+				"		<input name='qnum' value='" + (++qnum) + "'",
+				"			type='number' min='1'",
+				"			class='validate' />",
+				"	</div>",
+				"	<div class='col s12'>",
+				"		<div class='row'>",
+				"			<div class='input-field col m5 s12'>",
+				"				<textarea name='content'",
+				"					class='materialize-textarea'></textarea>",
+				"			</div>",
+				"			<div class='content col m5 s12' id='preview'></div>",
+				"		</div>",
+				"	</div>",
+				"</form>"
+			].join("\n");
+			$("#questions").append(content);
+			
+			var converter = new showdown.Converter();
+			$("textarea").on("input", function(){
+				var parent = $(this).parent().parent();
+				var preview = parent.find("#preview");
+				
+				preview.html(converter.makeHtml($(this).val()));
+				renderMathInElement(preview.get()[0], {
+					delimiters: [
+						{left: "$$", right: "$$", display: true},
+						{left: "\\[", right: "\\]", display: true},
+						{left: "$", right: "$", display: false},
+						{left: "\\(", right: "\\)", display: false}
+					]
+				});
+			});
+		};
+	</script>
+	
+	<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+		<button class="btn-floating btn-large right" onclick="addnew()">
+			<i class="material-icons">add</i>
+		</button>
+	</div>
+	<div class="fixed-action-btn" style="bottom: 125px; right: 24px;">
+		<button class="btn-floating btn-large right" onclick="submitall()">
+			<i class="material-icons">file_upload</i>
+		</button>
+	</div>
+</body>

@@ -1,0 +1,77 @@
+.content {
+	counter-reset: c;
+}
+
+.content li {
+	position: relative;
+	list-style-type: none;
+	margin-bottom: 2em;
+}
+
+.content ul > li:before {
+	position: absolute;
+	left: -2em;
+	counter-increment: c;
+	content: "(" counter(c, lower-alpha) ")";
+}
+
+.content ul ul {
+	counter-reset: inner;
+}
+
+.content ul ul li:before {
+	position: absolute;
+	left: -2em;
+	counter-increment: inner;
+	content: "(" counter(inner, lower-roman) ")";
+}
+
+.content ul ul ul li:before {
+	content: "(" counter(inner, decimal) ".";
+}
+
+.content ol > li:before {
+	position: absolute;
+	left: -2em;
+	counter-increment: c;
+	content: "(" counter(c, lower-roman) ")";
+}
+
+.content strong {
+	width: 100%;
+	text-align: right;
+	display: block;
+}
+
+ul, ol {
+	padding-left: 2em;
+}
+
+.question {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+img {
+	max-width: 100%;
+	display: block;
+	margin: auto;
+}
+
+@media print{
+	.no-print{
+		display: none;
+	}
+	
+	* {
+		font-size: 0.98em;
+	}
+	
+	:not(.katex-display *) {
+		font-size: 0.95em;
+	}
+	
+	.question {
+		page-break-inside: avoid;
+	}
+}
